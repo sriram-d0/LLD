@@ -340,29 +340,103 @@ java ElevatorSystem
 
 ---
 
-Let me know if you want this bundled into a downloadable file or turned into a GitHub project template.
-## 🧪 Sample Usage
 
-```java
-public class ElevatorSystem {
-    public static void main(String[] args) {
-        Building building = new Building(5, 2);
+Quick Overview
 
-        // Register controllers to dispatchers
-        for (Floor floor : building.floors) {
-            floor.externalButton.dispatch.registerControllers(building.elevatorControllers);
-        }
+## 🛗 Elevator System LLD – Revision Guide
 
-        // Simulate external request
-        building.floors.get(2).externalButton.pushButton(Direction.UP);
+### 🎯 **Purpose**
+Simulate a multi-elevator system that handles user requests from both inside and outside elevators, using modular components and dispatch logic.
 
-        // Simulate internal request
-        ElevatorController controller = building.elevatorControllers.get(0);
-        controller.elevator.internalButton.pressButton(4);
+---
 
-        // Process requests
-        for (ElevatorController ec : building.elevatorControllers) {
-            ec.controlCar();
-        }
-    }
-}
+## 🧱 **Core Components**
+
+### 1. **Building**
+- Contains multiple `Floor` objects and multiple `ElevatorController` instances.
+- Initializes the system with elevators and floors.
+
+### 2. **Floor**
+- Represents a physical floor.
+- Has an `ExternalButton` to request an elevator (UP/DOWN).
+
+### 3. **Elevator**
+- Represents a single elevator car.
+- Tracks:
+  - `liftId`: unique identifier
+  - `currentFloor`: current position
+  - `direction`: UP or DOWN
+  - `status`: MOVING or IDLE
+- Contains:
+  - `Door`: opens/closes on arrival
+  - `Display`: shows current floor and direction
+  - `InternalButton`: lets passengers choose destination
+- Method: `move(int floor, Direction d)` handles movement logic.
+
+### 4. **ElevatorController**
+- Controls one elevator.
+- Accepts external requests via `acceptNewRequest()`.
+- Processes requests using `controlCar()` (e.g., queue-based movement).
+
+---
+
+## 🔘 **Buttons and Dispatchers**
+
+### 5. **ExternalButton**
+- Located on each floor.
+- Calls `ExternalButtonDispatch` when pressed.
+
+### 6. **ExternalButtonDispatch**
+- Maintains a list of all `ElevatorController`s.
+- Uses selection logic to choose the best elevator based on:
+  - Proximity
+  - Direction
+  - Status (IDLE preferred)
+- Method: `submitNewRequest(floor, direction)` routes the request.
+
+### 7. **InternalButton**
+- Located inside each elevator.
+- Calls `InternalButtonDispatch` when a floor is selected.
+
+### 8. **InternalButtonDispatch**
+- Directly moves the elevator to the requested floor.
+
+---
+
+## 📺 **Display**
+- Shows elevator’s current floor and direction.
+
+---
+
+## 🚪 **Door**
+- Opens when elevator arrives at a floor.
+- Closes before movement begins.
+
+---
+
+## 🧮 **Enums**
+- `Direction`: UP, DOWN
+- `Status`: MOVING, IDLE
+- `DoorStatus`: OPEN, CLOSED
+
+---
+
+## 🔁 **Flow Summary**
+
+1. **User presses external button** → `ExternalButtonDispatch` selects best elevator.
+2. **Controller queues request** → `controlCar()` moves elevator.
+3. **Passenger presses internal button** → elevator moves directly to selected floor.
+4. **Display updates** and **Door opens/closes** accordingly.
+
+---
+
+## 🧪 Example Scenario
+
+- User on Floor 3 presses UP.
+- Dispatch selects Elevator A (closest and idle).
+- Elevator A moves to Floor 3, opens door.
+- Passenger presses Floor 5 → elevator moves to Floor 5.
+
+---
+
+Let me know if you want this turned into a printable cheat sheet or added to your README for quick reference.
