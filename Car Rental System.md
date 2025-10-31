@@ -285,13 +285,78 @@ public class VehicleRentalSystem {
 
 ---
 
-## ✅ Future Enhancements
-
-- Add pricing logic based on duration and vehicle type.
-- Add availability checks and conflict resolution.
-- Add payment and invoice modules.
-- Add search and filter for vehicles and reservations.
+Here’s your Snake & Ladder LLD revision guide formatted as a clean, professional README section — perfect for quick reference and revision:
 
 ---
 
-Let me know if you want this turned into a Java Maven project or if you'd like a test driver class to simulate usage. We can also add logging, exception handling, or REST APIs if you're planning to scale this.
+# 🧠 Snake & Ladder LLD – Quick Revision Guide
+
+## 🎮 Game Flow
+- Players take turns rolling dice.
+- They move forward by the dice value.
+- If they land on a cell with a snake or ladder, they jump to the target cell.
+- First player to reach cell 100 wins.
+
+---
+
+## 🧱 Board Structure
+- 10×10 grid = 100 cells.
+- Each cell may contain a `Jump` (snake or ladder).
+- Board randomly places snakes and ladders during initialization.
+
+---
+
+## 🧩 Class Summary
+
+### 1. `Player`
+- **Fields**: `id`, `curPos`
+- Tracks player identity and current position.
+
+### 2. `Dice`
+- **Field**: `diceCount`
+- **Method**: `rollDice()` → returns total dice value.
+
+### 3. `Jump`
+- **Fields**: `start`, `end`
+- Represents a snake (`start > end`) or ladder (`start < end`).
+
+### 4. `Cell`
+- **Field**: `Jump j`
+- Each cell may contain a jump.
+
+### 5. `Board`
+- **Fields**: `Cell[][] cells`, `rows`, `cols`
+- **Methods**:
+  - `initializeCells()` → fills grid with empty cells.
+  - `addSnakesAndLadders()` → randomly places jumps.
+  - `getCell(pos)` → returns cell at linear position.
+  - `getCoordinates(pos)` → converts linear to grid coordinates.
+  - `getSize()` → returns total cells (100).
+
+### 6. `Game`
+- **Fields**: `Board`, `Dice`, `Deque<Player>`, `Player winner`
+- **Methods**:
+  - `addPlayers()` → adds players to queue.
+  - `startGame()` → runs game loop until someone wins.
+
+---
+
+## 🧪 Sample Setup
+
+```java
+Game game = new Game(10, 10, 5, 5, 1); // 10x10 board, 5 snakes, 5 ladders, 1 dice
+game.addPlayers(Arrays.asList("Alice", "Bob"));
+game.startGame();
+```
+
+---
+
+## ✅ Key Concepts to Remember
+- `Jump` is used for both snakes and ladders.
+- Board uses a 2D grid but maps positions linearly (1–100).
+- Game uses a queue to rotate player turns.
+- Dice rolls are skipped if they overshoot cell 100.
+- Winner is declared when `curPos == 100`.
+
+---
+
