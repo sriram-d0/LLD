@@ -1,40 +1,40 @@
-# 🚗 Parking Lot Management System
 
-A **modular and extensible Parking Lot Management System** designed to manage multi-floor parking with entry/exit gates, vehicle tracking, ticketing, and payment processing.  
-It supports proximity-based parking allocation and multiple vehicle types.
+# 📘 **Parking Lot Management System – Low Level Design (LLD)**
 
----
+A clean, modular, scalable Parking Lot system built using core OOP principles.
+Supports:
 
-## 📦 Features
-
-- 🏢 Multi-floor parking with location-aware spot assignment  
-- 🚪 Entry and exit gate logic with ticket generation and cost calculation  
-- 🚗 Supports Two-Wheeler and Four-Wheeler vehicles  
-- 💳 Modular payment system (Debit Card, Credit Card, UPI)  
-- ⚙️ Extensible architecture using interfaces and enums  
-- 📍 Proximity-based parking spot selection  
-
----
-
-## 🧱 Architecture Overview
-
-| Interface | Purpose |
-|------------|----------|
-| `Vehicle` | Represents any vehicle (Car, Bike, Auto) |
-| `ParkingSpot` | Abstracts a parking spot with location, price, and occupancy |
-| `Payment` | Handles payment logic for different methods |
-| `EntryGate` | Manages entry operations: spot allocation, ticketing |
-| `ExitGate` | Manages exit operations: cost calculation, payment |
+* Multi-floor parking
+* Location-aware spot assignment
+* Proximity-based parking logic (Manhattan Distance)
+* Dynamic ticketing
+* Time-based cost calculation
+* Multiple payment methods
+* Separate entry & exit gates
+* Two-wheeler and four-wheeler spots
 
 ---
 
-## 📁 Java Code
+# 🏗️ **System Overview**
+
+This Parking Lot LLD is divided into the following modules:
+
+1. **Vehicle System**
+2. **Location System (Manhattan Distance)**
+3. **Parking Spot System**
+4. **Ticket System**
+5. **Payment System**
+6. **Entry Gate System**
+7. **Exit Gate System**
+8. **Proximity Logic**
+
+All modules work together to allow smooth entry → parking → exit → billing.
+
+---
+
+# 🚗 **1. Vehicle System**
 
 ```java
-// ===========================
-// 🚗 Vehicle System
-// ===========================
-
 public enum VehicleType {
     TWO_WHEELER,
     FOUR_WHEELER
@@ -66,11 +66,21 @@ public class Bike implements Vehicle {
     public String getVehicleNo() { return vehicleNo; }
     public VehicleType getVehicleType() { return VehicleType.TWO_WHEELER; }
 }
+```
 
-// ===========================
-// 📍 Location System
-// ===========================
+---
 
+# 📍 **2. Location System (Manhattan Distance)**
+
+Manhattan distance ensures the **closest** parking spot is chosen.
+
+Formula:
+
+```
+|Δfloor| + |Δx| + |Δy|
+```
+
+```java
 public class Location {
     private int floor;
     private int x;
@@ -83,14 +93,20 @@ public class Location {
     }
 
     public int distanceTo(Location other) {
-        return Math.abs(floor - other.floor) + Math.abs(x - other.x) + Math.abs(y - other.y);
+        return Math.abs(floor - other.floor)
+                + Math.abs(x - other.x)
+                + Math.abs(y - other.y);
     }
 }
+```
 
-// ===========================
-// 🅿️ Parking Spot System
-// ===========================
+---
 
+# 🅿️ **3. Parking Spot System**
+
+Two types of spots, each with a price per hour.
+
+```java
 public interface ParkingSpot {
     int getId();
     boolean isEmpty();
@@ -100,7 +116,11 @@ public interface ParkingSpot {
     void parkVehicle(Vehicle v);
     void removeVehicle();
 }
+```
 
+### Two-wheeler spot
+
+```java
 public class TwoWheelerParkingSpot implements ParkingSpot {
     private int id;
     private Vehicle vehicle;
@@ -121,7 +141,11 @@ public class TwoWheelerParkingSpot implements ParkingSpot {
     public void parkVehicle(Vehicle v) { this.vehicle = v; }
     public void removeVehicle() { this.vehicle = null; }
 }
+```
 
+### Four-wheeler spot
+
+```java
 public class FourWheelerParkingSpot implements ParkingSpot {
     private int id;
     private Vehicle vehicle;
@@ -142,11 +166,15 @@ public class FourWheelerParkingSpot implements ParkingSpot {
     public void parkVehicle(Vehicle v) { this.vehicle = v; }
     public void removeVehicle() { this.vehicle = null; }
 }
+```
 
-// ===========================
-// 🎫 Ticket System
-// ===========================
+---
 
+# 🎫 **4. Ticket System**
+
+Ticket stores entry time, exit time, cost, vehicle, and spot.
+
+```java
 import java.time.LocalDateTime;
 
 public class Ticket {
@@ -172,13 +200,20 @@ public class Ticket {
         this.totalCost = cost;
     }
 
-    // Getters omitted for brevity
+    public int getTicketId() { return ticketId; }
+    public LocalDateTime getEntryTime() { return entryTime; }
+    public LocalDateTime getExitTime() { return exitTime; }
+    public int getTotalCost() { return totalCost; }
+    public ParkingSpot getParkingSpot() { return parkingSpot; }
+    public Vehicle getVehicle() { return vehicle; }
 }
+```
 
-// ===========================
-// 💳 Payment System
-// ===========================
+---
 
+# 💳 **5. Payment System**
+
+```java
 public enum PaymentStatus {
     SUCCESS,
     FAILED
@@ -199,11 +234,15 @@ public class UPIPayment implements Payment {
         return PaymentStatus.SUCCESS;
     }
 }
+```
 
-// ===========================
-// 🚪 Entry Gate System
-// ===========================
+---
 
+# 🚪 **6. Entry Gate (Proximity-based Spot Selection)**
+
+Entry gate picks the **nearest suitable available spot**.
+
+```java
 import java.util.List;
 
 public interface EntryGate {
@@ -234,41 +273,90 @@ public class MainEntryGate implements EntryGate {
     }
 
     private boolean matchesVehicleType(ParkingSpot spot, Vehicle vehicle) {
-        if (vehicle.getVehicleType() == VehicleType.TWO_WHEELER && spot instanceof TwoWheelerParkingSpot) return true;
-        if (vehicle.getVehicleType() == VehicleType.FOUR_WHEELER && spot instanceof FourWheelerParkingSpot) return true;
-        return false;
-    }
+        if (vehicle.getVehicleType() == VehicleType.TWO_WHEELER &&
+            spot instanceof TwoWheelerParkingSpot) return true;
 
-    @Override
-    public void updateParkingSpot(ParkingSpot spot, boolean isOccupied) {
-        if (isOccupied) {
-            spot.parkVehicle(spot.getVehicle());
-        } else {
-            spot.removeVehicle();
-        }
+        if (vehicle.getVehicleType() == VehicleType.FOUR_WHEELER &&
+            spot instanceof FourWheelerParkingSpot) return true;
+
+        return false;
     }
 
     @Override
     public Ticket generateTicket(Vehicle vehicle, ParkingSpot spot) {
         return new Ticket(ticketCounter++, vehicle, spot);
     }
+
+    @Override
+    public void updateParkingSpot(ParkingSpot spot, boolean isOccupied) {
+        if (!isOccupied) spot.removeVehicle();
+    }
 }
+```
 
-// ===========================
-// 🧾 Exit Gate System
-// ===========================
+---
 
-public interface ExitGate {
-    int calculateCost(Ticket ticket);
-    boolean processPayment(Payment payment, int amount);
-    void updateParkingSpot(ParkingSpot spot, boolean isEmpty);
+# 🧾 **7. Exit Gate (Dynamic Hourly Billing)**
+
+Uses `Duration.between(entry, exit)`.
+
+```java
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+public class MainExitGate implements ExitGate {
+
+    @Override
+    public int calculateCost(Ticket ticket) {
+        LocalDateTime entry = ticket.getEntryTime();
+        LocalDateTime exit = ticket.getExitTime();
+
+        if (exit == null) {
+            exit = LocalDateTime.now();
+            ticket.setExitTime(exit);
+        }
+
+        long minutes = Duration.between(entry, exit).toMinutes();
+        long hours = Math.max(1, (minutes + 59) / 60);  // ceil(minutes/60)
+
+        int pricePerHour = ticket.getParkingSpot().getPrice();
+        return (int)(hours * pricePerHour);
+    }
+
+    @Override
+    public boolean processPayment(Payment payment, int amount) {
+        return payment.pay(amount) == PaymentStatus.SUCCESS;
+    }
+
+    @Override
+    public void updateParkingSpot(ParkingSpot spot, boolean isEmpty) {
+        if (isEmpty) {
+            spot.removeVehicle();
+        }
+    }
 }
+```
 
-// ===========================
-// 🧠 Proximity Logic
-// ===========================
+---
 
-// Parking spots are assigned based on the shortest Manhattan distance
-// to the entry gate. This ensures vehicles are parked as close as possible.
+# 🧠 **8. Proximity Logic**
 
+```java
 int distance = spot.getLocation().distanceTo(entryGateLocation);
+```
+
+Nearest empty spot → chosen for parking.
+
+---
+
+# 🎯 **Sample Parking Flow**
+
+1️⃣ A bike comes to entry gate
+2️⃣ Entry gate finds nearest 2-wheeler spot
+3️⃣ Create ticket with entry time
+4️⃣ When vehicle exits, exit time is recorded
+5️⃣ Duration calculated → cost = hours × price/hour
+6️⃣ Payment processed
+7️⃣ Spot becomes empty again
+
+
