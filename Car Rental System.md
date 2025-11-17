@@ -1,44 +1,80 @@
 
 
 
-# 🚗 Car Rental System – Low-Level Design (LLD)
+# 🚗 Car Rental System 
 
-## 📖 Overview
 
-This project presents a comprehensive Low-Level Design (LLD) for a modular Car Rental System built in Java. It models the core entities and workflows required to manage vehicle rentals across multiple store locations. The system supports:
 
-- Vehicle inventory management
-- User registration and lookup
-- Reservation creation and lifecycle tracking
-- Store-level operations and vehicle assignment
+### 📘Class Descriptions (Tabular Format)
 
-Each class is designed with clear responsibilities and extensible structure, using enums for state management and encapsulating CRUD operations where appropriate. The design emphasizes clarity, modularity, and real-world applicability, making it suitable for both backend implementation and future API integration.
+| **Class Name**                                                      | **Role / Responsibility**                                                               | **Key Functions / Notes**                                                       |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| **Vehicle**                                                         | Represents a single vehicle in the system with its details, specs, pricing, and status. | Holds vehicle metadata → company, model, CC, seats, daily/hourly price, status. |
+| **Location**                                                        | Stores address details used by both Stores and Reservations.                            | Contains address, city, state, pincode.                                         |
+| **User**                                                            | Represents a customer using the rental system.                                          | Holds user ID, name, and driving license number.                                |
+| **VehicleInventory**                                                | Manages all vehicles of a given store.                                                  | Add/remove vehicles, fetch by ID, list all vehicles.                            |
+| **Reservation**                                                     | Represents a booking of a specific vehicle by a user for a time range.                  | Has reservation ID, user, vehicle, pickup/drop, booking dates, and status.      |
+| **Store**                                                           | A physical rental branch where vehicles are stored and reservations are created.        | Holds inventory, location, reservations. Creates & completes reservations.      |
+| **VehicleRentalSystem**                                             | Top-level system that manages users and stores.                                         | Add/lookup users, add/lookup stores, fetch lists.                               |
+| **Enums (VehicleType, Status, ReservationType, ReservationStatus)** | Standardizes fixed values used across the system.                                       | Used for vehicle types, availability, reservation durations, and status.        |
 
 ---
 
-## 📦 Project Structure
+# 🔄 **Rough Flow of the System**
 
-```plaintext
-com.carrental
-├── enums
-│   ├── VehicleType.java
-│   ├── Status.java
-│   ├── ReservationType.java
-│   └── ReservationStatus.java
-├── models
-│   ├── Vehicle.java
-│   ├── Location.java
-│   ├── User.java
-│   ├── Reservation.java
-│   ├── VehicleInventory.java
-│   ├── Store.java
-│   └── VehicleRentalSystem.java
-└── README.md
+(How the system behaves from start to end)
+
+```
+                    ┌────────────────────────────┐
+                    │ VehicleRentalSystem (root) │
+                    └──────────────┬─────────────┘
+                                   │
+             ┌─────────────────────┴────────────────────────┐
+             │                                              │
+      Add/Fetch Users                                Add/Fetch Stores
+             │                                              │
+             ▼                                              ▼
+         ┌──────────┐                                ┌──────────┐
+         │   User   │                                │  Store   │
+         └──────────┘                                └─────┬────┘
+                                                            │
+                                       ┌────────────────────┴────────────────────┐
+                                       │                                          │
+                                   Inventory                                 Reservations
+                                       │                                          │
+                                       ▼                                          ▼
+                            ┌──────────────────┐                        ┌──────────────────┐
+                            │ VehicleInventory │                        │   Reservation    │
+                            └───────┬──────────┘                        └──────────────────┘
+                                    │
+                              Holds Vehicles
+                                    │
+                                    ▼
+                          ┌──────────────────┐
+                          │    Vehicle       │
+                          └──────────────────┘
 ```
 
 ---
 
-## 📜 Enums
+
+
+# 🎯 **Ultra-short summary**
+
+| System Part             | Purpose                                            |
+| ----------------------- | -------------------------------------------------- |
+| **VehicleRentalSystem** | Entry point → manages users + stores               |
+| **Store**               | A rental branch → manages reservations + inventory |
+| **VehicleInventory**    | Manages vehicles of one store                      |
+| **Reservation**         | Actual booking object                              |
+| **Vehicle**             | Car details                                        |
+| **User**                | Customer info                                      |
+| **Location**            | Shared address model                               |
+
+---
+
+
+# 🧩 Enums
 
 ```java
 // VehicleType.java
@@ -60,11 +96,11 @@ public enum ReservationType {
 public enum ReservationStatus {
     SCHEDULED, ONGOING, CLOSED, CANCELLED
 }
-```
+````
 
 ---
 
-## 🚗 Vehicle
+# 🚗 Vehicle
 
 ```java
 public class Vehicle {
@@ -102,7 +138,7 @@ public class Vehicle {
 
 ---
 
-## 📍 Location
+# 📍 Location
 
 ```java
 public class Location {
@@ -122,7 +158,7 @@ public class Location {
 
 ---
 
-## 👤 User
+# 👤 User
 
 ```java
 public class User {
@@ -140,7 +176,7 @@ public class User {
 
 ---
 
-## 📦 VehicleInventory
+# 📦 VehicleInventory
 
 ```java
 public class VehicleInventory {
@@ -155,7 +191,10 @@ public class VehicleInventory {
     }
 
     public Vehicle getVehicleById(int id) {
-        return vehicles.stream().filter(v -> v.id == id).findFirst().orElse(null);
+        return vehicles.stream()
+                       .filter(v -> v.id == id)
+                       .findFirst()
+                       .orElse(null);
     }
 
     public List<Vehicle> getAllVehicles() {
@@ -166,7 +205,7 @@ public class VehicleInventory {
 
 ---
 
-## 📄 Reservation
+# 📄 Reservation
 
 ```java
 public class Reservation {
@@ -203,24 +242,19 @@ public class Reservation {
 
 ---
 
-## 🏬 Store
+# 🏬 Store (Constructor Injection)
 
 ```java
 public class Store {
     int storeId;
-    VehicleInventory vi = new VehicleInventory();
+    VehicleInventory vi;
     Location loc;
     List<Reservation> reservations = new ArrayList<>();
 
-    public Store(int storeId, Location loc) {
+    public Store(int storeId, Location loc, VehicleInventory vi) {
         this.storeId = storeId;
         this.loc = loc;
-    }
-
-    public void setVehicles(List<Vehicle> vehicles) {
-        for (Vehicle v : vehicles) {
-            vi.addVehicle(v);
-        }
+        this.vi = vi;
     }
 
     public Reservation createReservation(Vehicle v, User u, Date from, Date to,
@@ -231,9 +265,9 @@ public class Store {
         return r;
     }
 
-    public void completeReservation(int reservationId) {
+    public void completeReservation(int id) {
         for (Reservation r : reservations) {
-            if (r.resId == reservationId) {
+            if (r.resId == id) {
                 r.updateStatus(ReservationStatus.CLOSED);
                 break;
             }
@@ -241,7 +275,8 @@ public class Store {
     }
 
     public List<Vehicle> getAvailableVehicles() {
-        return vi.getAllVehicles().stream()
+        return vi.getAllVehicles()
+                 .stream()
                  .filter(v -> v.st == Status.ACTIVE)
                  .collect(Collectors.toList());
     }
@@ -250,7 +285,7 @@ public class Store {
 
 ---
 
-## 🏢 VehicleRentalSystem
+# 🏢 VehicleRentalSystem
 
 ```java
 public class VehicleRentalSystem {
@@ -266,11 +301,17 @@ public class VehicleRentalSystem {
     }
 
     public User getUserById(int id) {
-        return users.stream().filter(u -> u.id == id).findFirst().orElse(null);
+        return users.stream()
+                    .filter(u -> u.id == id)
+                    .findFirst()
+                    .orElse(null);
     }
 
     public Store getStoreById(int id) {
-        return stores.stream().filter(s -> s.storeId == id).findFirst().orElse(null);
+        return stores.stream()
+                     .filter(s -> s.storeId == id)
+                     .findFirst()
+                     .orElse(null);
     }
 
     public List<Store> getAllStores() {
@@ -282,4 +323,76 @@ public class VehicleRentalSystem {
     }
 }
 ```
+
+---
+
+# ▶️ **Sample Usage – Main.java**
+
+```java
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        VehicleRentalSystem system = new VehicleRentalSystem();
+
+        // Users
+        User u1 = new User(1, "AP12345", "Sriram");
+        User u2 = new User(2, "TS99887", "Karthik");
+        system.addUser(u1);
+        system.addUser(u2);
+
+        // Locations
+        Location loc1 = new Location("MG Road", "Vijayawada", "AP", 520001);
+
+        // Inventory
+        VehicleInventory inv1 = new VehicleInventory();
+
+        // Vehicles
+        Vehicle v1 = new Vehicle(1, 5678, VehicleType.CAR, 12000, "Honda", "City",
+                new Date(), 1498, 1800, 200, 5, Status.ACTIVE);
+
+        Vehicle v2 = new Vehicle(2, 9999, VehicleType.SUV, 30000, "Toyota", "Fortuner",
+                new Date(), 2755, 3500, 300, 7, Status.ACTIVE);
+
+        Vehicle v3 = new Vehicle(3, 1234, VehicleType.CAR, 22000, "Hyundai", "i20",
+                new Date(), 1200, 1500, 150, 5, Status.INACTIVE);
+
+        inv1.addVehicle(v1);
+        inv1.addVehicle(v2);
+        inv1.addVehicle(v3);
+
+        // Store with injected inventory
+        Store store1 = new Store(101, loc1, inv1);
+        system.addStore(store1);
+
+        // Available Vehicles
+        System.out.println("--- Available Vehicles at Store 1 ---");
+        for (Vehicle v : store1.getAvailableVehicles()) {
+            System.out.println(v.companyName + " " + v.modelName);
+        }
+
+        // Reservation Dates
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, 1);
+        Date from = c.getTime();
+
+        c.add(Calendar.DATE, 2);
+        Date to = c.getTime();
+
+        // Create Reservation
+        Reservation res = store1.createReservation(
+                v1, u1, from, to, loc1, loc1, ReservationType.DAILY
+        );
+
+        System.out.println("\nReservation Created: ID " + res.resId);
+
+        // Complete Reservation
+        store1.completeReservation(res.resId);
+        System.out.println("After Completion: " + res.rs);
+    }
+}
+```
+
+---
 
