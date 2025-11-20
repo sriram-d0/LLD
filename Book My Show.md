@@ -200,6 +200,8 @@ public class Seat {
     private SeatCategory category;
     private boolean isBooked;
 
+    private final Object lock = new Object();
+
     public Seat(int id, int row, SeatCategory category) {
         this.id = id;
         this.row = row;
