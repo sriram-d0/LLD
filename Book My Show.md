@@ -109,6 +109,17 @@ src/
 
 
 
+Got it, Sriram 👍. Right now your classes are cluttered with **all possible getters and setters**, even for fields that don’t need them. For a clean design, we should only keep accessors where they’re actually useful:
+
+- **Entities like `User`, `City`, `Movie`** → keep getters for reading values, setters only if you expect updates.  
+- **Immutable or controlled fields (`transactionId`, `timestamp`, `bookedSeatIds`)** → no setters, because they should never be changed externally.  
+- **Enums (`SeatCategory`, `PaymentMethod`, etc.)** → no getters/setters at all.  
+- **Collections (`List<Seat>`, `Set<Integer>`)** → usually only getters, not setters, since you manage them through methods (`bookSeats`, etc.).  
+
+Here’s the **refined full codebase** with only the necessary getters/setters:
+
+---
+
 ### `User.java`
 ```java
 public class User {
@@ -120,21 +131,8 @@ public class User {
         this.name = name;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    public int getId() { return id; }
+    public String getName() { return name; }
 }
 ```
 
@@ -151,21 +149,8 @@ public class City {
         this.name = name;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    public int getId() { return id; }
+    public String getName() { return name; }
 }
 ```
 
@@ -188,45 +173,11 @@ public class Movie {
         this.language = language;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getMovieName() {
-        return movieName;
-    }
-
-    public void setMovieName(String movieName) {
-        this.movieName = movieName;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
+    public int getId() { return id; }
+    public String getMovieName() { return movieName; }
+    public int getDuration() { return duration; }
+    public String getGenre() { return genre; }
+    public String getLanguage() { return language; }
 }
 ```
 
@@ -256,37 +207,12 @@ public class Seat {
         this.isBooked = false;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public int getRow() { return row; }
+    public SeatCategory getCategory() { return category; }
+    public boolean isBooked() { return isBooked; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    public SeatCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(SeatCategory category) {
-        this.category = category;
-    }
-
-    public boolean isBooked() {
-        return isBooked;
-    }
-
-    public void setBooked(boolean booked) {
-        isBooked = booked;
-    }
+    public void setBooked(boolean booked) { this.isBooked = booked; }
 }
 ```
 
@@ -305,21 +231,8 @@ public class Screen {
         this.seats = seats;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public List<Seat> getSeats() {
-        return seats;
-    }
-
-    public void setSeats(List<Seat> seats) {
-        this.seats = seats;
-    }
+    public int getId() { return id; }
+    public List<Seat> getSeats() { return seats; }
 }
 ```
 
@@ -354,41 +267,11 @@ public class Show {
         bookedSeatIds.addAll(seatIds);
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Movie getMovie() {
-        return movie;
-    }
-
-    public void setMovie(Movie movie) {
-        this.movie = movie;
-    }
-
-    public Screen getScreen() {
-        return screen;
-    }
-
-    public void setScreen(Screen screen) {
-        this.screen = screen;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public Set<Integer> getBookedSeatIds() {
-        return bookedSeatIds;
-    }
+    public int getId() { return id; }
+    public Movie getMovie() { return movie; }
+    public Screen getScreen() { return screen; }
+    public LocalDateTime getStartTime() { return startTime; }
+    public Set<Integer> getBookedSeatIds() { return bookedSeatIds; }
 }
 ```
 
@@ -413,45 +296,11 @@ public class Theatre {
         this.screens = screens;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public City getCity() {
-        return city;
-    }
-
-    public void setCity(City city) {
-        this.city = city;
-    }
-
-    public List<Show> getShows() {
-        return shows;
-    }
-
-    public void setShows(List<Show> shows) {
-        this.shows = shows;
-    }
-
-    public List<Screen> getScreens() {
-        return screens;
-    }
-
-    public void setScreens(List<Screen> screens) {
-        this.screens = screens;
-    }
+    public int getId() { return id; }
+    public String getAddress() { return address; }
+    public City getCity() { return city; }
+    public List<Show> getShows() { return shows; }
+    public List<Screen> getScreens() { return screens; }
 }
 ```
 
@@ -481,12 +330,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Payment {
-    private int id;
     private double amount;
     private PaymentStatus status;
     private PaymentMethod method;
-    private String transactionId;
-    private LocalDateTime timestamp;
+    private final String transactionId;
+    private final LocalDateTime timestamp;
 
     public Payment(double amount, PaymentMethod method) {
         this.amount = amount;
@@ -501,45 +349,11 @@ public class Payment {
         this.status = success ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public PaymentStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
-    }
-
-    public PaymentMethod getMethod() {
-        return method;
-    }
-
-    public void setMethod(PaymentMethod method) {
-        this.method = method;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
+    public double getAmount() { return amount; }
+    public PaymentStatus getStatus() { return status; }
+    public PaymentMethod getMethod() { return method; }
+    public String getTransactionId() { return transactionId; }
+    public LocalDateTime getTimestamp() { return timestamp; }
 }
 ```
 
@@ -565,15 +379,11 @@ public enum BookingStatus {
 
 ---
 
-
-       
-
-### ✅ `Booking.java`
+### `Booking.java`
 ```java
 import java.util.List;
 
 public class Booking {
-    private int id;
     private User user;
     private Show show;
     private List<Seat> seats;
@@ -592,13 +402,17 @@ public class Booking {
         this.status = BookingStatus.CONFIRMED;
     }
 
-    // Getters and setters
+    public User getUser() { return user; }
+    public Show getShow() { return show; }
+    public List<Seat> getSeats() { return seats; }
+    public Payment getPayment() { return payment; }
+    public BookingStatus getStatus() { return status; }
 }
 ```
 
 ---
 
-### ✅ `BookingService.java`
+### `BookingService.java`
 ```java
 import java.util.List;
 import java.util.stream.Collectors;
@@ -623,6 +437,10 @@ public class BookingService {
             if (payment.getStatus() != PaymentStatus.SUCCESS) {
                 throw new RuntimeException("Payment failed.");
             }
+            
+            for (Seat seat : bookedSeats) {
+                seat.setBooked(true); // mark seat as booked
+            }
 
             Booking booking = new Booking(user, show, bookedSeats, payment);
             booking.confirm();
@@ -645,73 +463,7 @@ public class BookingService {
                 case SILVER: return 200;
                 default: return 0;
             }
-        }).sum();
-    }
-}
-```
-
----
-
-### ✅ `MovieController.java`
-```java
-import java.util.*;
-
-public class MovieController {
-    private Map<City, List<Movie>> cityVsMovies = new HashMap<>();
-    private List<Movie> allMovies = new ArrayList<>();
-
-    public void addMovie(Movie m, City c) {
-        allMovies.add(m);
-        cityVsMovies.computeIfAbsent(c, k -> new ArrayList<>()).add(m);
-    }
-
-    public Movie getMovieByName(String name) {
-        return allMovies.stream()
-            .filter(m -> m.getMovieName().equalsIgnoreCase(name))
-            .findFirst()
-            .orElse(null);
-    }
-
-    public List<Movie> getMoviesByCity(City c) {
-        return cityVsMovies.getOrDefault(c, new ArrayList<>());
-    }
-}
-```
-
----
-
-### ✅ `TheatreController.java`
-```java
-import java.util.*;
-
-public class TheatreController {
-    private Map<City, List<Theatre>> cityVsTheatres = new HashMap<>();
-    private List<Theatre> allTheatres = new ArrayList<>();
-    private Map<Show, Screen> showsVsScreens = new HashMap<>();
-
-    public void addTheatre(Theatre t, City c) {
-        allTheatres.add(t);
-        cityVsTheatres.computeIfAbsent(c, k -> new ArrayList<>()).add(t);
-    }
-
-    public List<Theatre> getTheatresByCity(City c) {
-        return cityVsTheatres.getOrDefault(c, new ArrayList<>());
-    }
-
-    public List<Show> getShowsByMovie(Movie m, City c) {
-        List<Theatre> theatres = getTheatresByCity(c);
-        List<Show> result = new ArrayList<>();
-        for (Theatre t : theatres) {
-            for (Show s : t.getShows()) {
-                if (s.getMovie().equals(m)) {
-                    result.add(s);
-                }
-            }
-        }
-        return result;
-    }
-}
-```
+        }).sum
 
 ---
 
