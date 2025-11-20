@@ -213,6 +213,7 @@ public class Seat {
     public boolean isBooked() { return isBooked; }
 
     public void setBooked(boolean booked) { this.isBooked = booked; }
+    public Object getLock() { return lock; }
 }
 ```
 
@@ -412,40 +413,47 @@ public class Booking {
 
 ---
 
-### `BookingService.java`
+
+
+###  `BookingService.java`
 ```java
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookingService {
-    private final Object lock = new Object();
 
     public Booking bookSeats(User user, Show show, List<Integer> seatIds, PaymentMethod method) {
-        synchronized (lock) {
-            for (Integer seatId : seatIds) {
-                if (!show.isSeatAvailable(seatId)) {
-                    throw new RuntimeException("Seat " + seatId + " is already booked.");
+        // Fetch seat objects
+        List<Seat> seatsToBook = getSeatsByIds(show.getScreen(), seatIds);
+
+        // Lock each seat individually
+        for (Seat seat : seatsToBook) {
+            synchronized (seat.getLock()) {
+                if (seat.isBooked()) {
+                    throw new RuntimeException("Seat " + seat.getId() + " is already booked.");
                 }
             }
-
-            show.bookSeats(seatIds);
-            List<Seat> bookedSeats = getSeatsByIds(show.getScreen(), seatIds);
-            double amount = calculateAmount(bookedSeats);
-            Payment payment = new Payment(amount, method);
-            payment.processPayment();
-
-            if (payment.getStatus() != PaymentStatus.SUCCESS) {
-                throw new RuntimeException("Payment failed.");
-            }
-            
-            for (Seat seat : bookedSeats) {
-                seat.setBooked(true); // mark seat as booked
-            }
-
-            Booking booking = new Booking(user, show, bookedSeats, payment);
-            booking.confirm();
-            return booking;
         }
+
+        // Process payment
+        double amount = calculateAmount(seatsToBook);
+        Payment payment = new Payment(amount, method);
+        payment.processPayment();
+
+        if (payment.getStatus() != PaymentStatus.SUCCESS) {
+            throw new RuntimeException("Payment failed.");
+        }
+
+        // Mark seats as booked only after payment succeeds
+        for (Seat seat : seatsToBook) {
+            synchronized (seat.getLock()) {
+                seat.setBooked(true);
+            }
+        }
+
+        Booking booking = new Booking(user, show, seatsToBook, payment);
+        booking.confirm();
+        return booking;
     }
 
     private List<Seat> getSeatsByIds(Screen screen, List<Integer> seatIds) {
@@ -463,10 +471,11 @@ public class BookingService {
                 case SILVER: return 200;
                 default: return 0;
             }
-        }).sum
-        }
+        }).sum();
     }
+}
 ```
+
 ---
 
 ### `MovieController.java`
