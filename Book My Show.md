@@ -105,7 +105,11 @@ src/
 ---
 ## Codes
 
-### ✅ `User.java`
+
+
+
+
+### `User.java`
 ```java
 public class User {
     private int id;
@@ -116,13 +120,27 @@ public class User {
         this.name = name;
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
 ```
 
 ---
 
-### ✅ `City.java`
+### `City.java`
 ```java
 public class City {
     private int id;
@@ -133,13 +151,27 @@ public class City {
         this.name = name;
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
 ```
 
 ---
 
-### ✅ `Movie.java`
+### `Movie.java`
 ```java
 public class Movie {
     private int id;
@@ -156,13 +188,51 @@ public class Movie {
         this.language = language;
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getMovieName() {
+        return movieName;
+    }
+
+    public void setMovieName(String movieName) {
+        this.movieName = movieName;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 }
 ```
 
 ---
 
-### ✅ `SeatCategory.java`
+### `SeatCategory.java`
 ```java
 public enum SeatCategory {
     PLATINUM, DIAMOND, GOLD, SILVER
@@ -171,7 +241,7 @@ public enum SeatCategory {
 
 ---
 
-### ✅ `Seat.java`
+### `Seat.java`
 ```java
 public class Seat {
     private int id;
@@ -186,13 +256,43 @@ public class Seat {
         this.isBooked = false;
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public SeatCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(SeatCategory category) {
+        this.category = category;
+    }
+
+    public boolean isBooked() {
+        return isBooked;
+    }
+
+    public void setBooked(boolean booked) {
+        isBooked = booked;
+    }
 }
 ```
 
 ---
 
-### ✅ `Screen.java`
+### `Screen.java`
 ```java
 import java.util.List;
 
@@ -205,15 +305,30 @@ public class Screen {
         this.seats = seats;
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public List<Seat> getSeats() {
+        return seats;
+    }
+
+    public void setSeats(List<Seat> seats) {
+        this.seats = seats;
+    }
 }
 ```
 
 ---
 
-### ✅ `Show.java`
+### `Show.java`
 ```java
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -239,13 +354,47 @@ public class Show {
         bookedSeatIds.addAll(seatIds);
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
+    }
+
+    public Screen getScreen() {
+        return screen;
+    }
+
+    public void setScreen(Screen screen) {
+        this.screen = screen;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public Set<Integer> getBookedSeatIds() {
+        return bookedSeatIds;
+    }
 }
 ```
 
 ---
 
-### ✅ `Theatre.java`
+### `Theatre.java`
 ```java
 import java.util.List;
 
@@ -264,13 +413,51 @@ public class Theatre {
         this.screens = screens;
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
+
+    public List<Show> getShows() {
+        return shows;
+    }
+
+    public void setShows(List<Show> shows) {
+        this.shows = shows;
+    }
+
+    public List<Screen> getScreens() {
+        return screens;
+    }
+
+    public void setScreens(List<Screen> screens) {
+        this.screens = screens;
+    }
 }
 ```
 
 ---
 
-### ✅ `PaymentMethod.java`
+### `PaymentMethod.java`
 ```java
 public enum PaymentMethod {
     CREDIT_CARD, DEBIT_CARD, UPI, NET_BANKING, WALLET
@@ -279,7 +466,7 @@ public enum PaymentMethod {
 
 ---
 
-### ✅ `PaymentStatus.java`
+### `PaymentStatus.java`
 ```java
 public enum PaymentStatus {
     INITIATED, SUCCESS, FAILED, CANCELLED
@@ -288,7 +475,7 @@ public enum PaymentStatus {
 
 ---
 
-### ✅ `Payment.java`
+### `Payment.java`
 ```java
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -314,13 +501,51 @@ public class Payment {
         this.status = success ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
     }
 
-    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public PaymentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PaymentStatus status) {
+        this.status = status;
+    }
+
+    public PaymentMethod getMethod() {
+        return method;
+    }
+
+    public void setMethod(PaymentMethod method) {
+        this.method = method;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }
 ```
 
 ---
 
-### ✅ `PaymentGateway.java`
+### `PaymentGateway.java`
 ```java
 public class PaymentGateway {
     public static boolean charge(double amount, PaymentMethod method) {
@@ -331,7 +556,7 @@ public class PaymentGateway {
 
 ---
 
-### ✅ `BookingStatus.java`
+### `BookingStatus.java`
 ```java
 public enum BookingStatus {
     PENDING, CONFIRMED, CANCELLED
@@ -339,6 +564,9 @@ public enum BookingStatus {
 ```
 
 ---
+
+
+       
 
 ### ✅ `Booking.java`
 ```java
