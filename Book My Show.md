@@ -464,7 +464,145 @@ public class BookingService {
                 default: return 0;
             }
         }).sum
+        }
+    }
+```
+---
+
+### `MovieController.java`
+```java
+import java.util.*;
+
+public class MovieController {
+    private Map<City, List<Movie>> cityVsMovies = new HashMap<>();
+    private List<Movie> allMovies = new ArrayList<>();
+
+    public void addMovie(Movie m, City c) {
+        allMovies.add(m);
+        cityVsMovies.computeIfAbsent(c, k -> new ArrayList<>()).add(m);
+    }
+
+    public Movie getMovieByName(String name) {
+        return allMovies.stream()
+            .filter(m -> m.getMovieName().equalsIgnoreCase(name))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public List<Movie> getMoviesByCity(City c) {
+        return cityVsMovies.getOrDefault(c, new ArrayList<>());
+    }
+}
+```
 
 ---
+
+### `TheatreController.java`
+```java
+import java.util.*;
+
+public class TheatreController {
+    private Map<City, List<Theatre>> cityVsTheatres = new HashMap<>();
+    private List<Theatre> allTheatres = new ArrayList<>();
+
+    public void addTheatre(Theatre t, City c) {
+        allTheatres.add(t);
+        cityVsTheatres.computeIfAbsent(c, k -> new ArrayList<>()).add(t);
+    }
+
+    public List<Theatre> getTheatresByCity(City c) {
+        return cityVsTheatres.getOrDefault(c, new ArrayList<>());
+    }
+
+    public List<Show> getShowsByMovie(Movie m, City c) {
+        List<Theatre> theatres = getTheatresByCity(c);
+        List<Show> result = new ArrayList<>();
+        for (Theatre t : theatres) {
+            for (Show s : t.getShows()) {
+                if (s.getMovie().equals(m)) {
+                    result.add(s);
+                }
+            }
+        }
+        return result;
+    }
+}
+```
+
+---
+
+### Sample Usage Code
+Here’s a **demo `Main.java`** showing how everything works together:
+
+```java
+import java.time.LocalDateTime;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create city
+        City hyderabad = new City(1, "Hyderabad");
+
+        // Create movies
+        Movie movie1 = new Movie(1, "Inception", 148, "Sci-Fi", "English");
+        Movie movie2 = new Movie(2, "RRR", 180, "Action", "Telugu");
+
+        // Movie controller
+        MovieController movieController = new MovieController();
+        movieController.addMovie(movie1, hyderabad);
+        movieController.addMovie(movie2, hyderabad);
+
+        // Create seats
+        List<Seat> seats = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            seats.add(new Seat(i, i / 5, SeatCategory.GOLD));
+        }
+
+        // Create screen
+        Screen screen1 = new Screen(1, seats);
+
+        // Create show
+        Show show1 = new Show(1, movie1, screen1, LocalDateTime.now().plusHours(2));
+
+        // Create theatre
+        Theatre theatre1 = new Theatre(1, "Madhapur Road", hyderabad, Arrays.asList(show1), Arrays.asList(screen1));
+
+        // Theatre controller
+        TheatreController theatreController = new TheatreController();
+        theatreController.addTheatre(theatre1, hyderabad);
+
+        // Create user
+        User user1 = new User(1, "Sriram");
+
+        // Booking service
+        BookingService bookingService = new BookingService();
+
+        // Book seats
+        try {
+            Booking booking = bookingService.bookSeats(user1, show1, Arrays.asList(1, 2), PaymentMethod.UPI);
+            System.out.println("Booking confirmed for " + booking.getUser().getName());
+            System.out.println("Seats booked: " + booking.getSeats().stream().map(Seat::getId).toList());
+            System.out.println("Payment status: " + booking.getPayment().getStatus());
+        } catch (RuntimeException e) {
+            System.out.println("Booking failed: " + e.getMessage());
+        }
+
+        // Query movies by city
+        System.out.println("Movies in Hyderabad: ");
+        for (Movie m : movieController.getMoviesByCity(hyderabad)) {
+            System.out.println("- " + m.getMovieName());
+        }
+
+        // Query shows by movie
+        System.out.println("Shows for Inception in Hyderabad: ");
+        for (Show s : theatreController.getShowsByMovie(movie1, hyderabad)) {
+            System.out.println("- Show ID: " + s.getId() + " at " + s.getStartTime());
+        }
+    }
+}
+```
+
+---
+
 
 
